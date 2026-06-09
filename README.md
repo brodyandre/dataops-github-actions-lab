@@ -338,19 +338,29 @@ Este cenário registra um disparo externo com `client_payload`. No contexto de E
 <a id="checklist-tecnico-do-laboratorio"></a>
 ## Checklist técnico do laboratório
 
-- [x] Pipeline Python com leitura de CSV, validação de colunas, limpeza de strings e segmentação de clientes.
-- [x] Geração de saída processada em `data/processed/` e relatório em `reports/`.
-- [x] Testes automatizados com `pytest` cobrindo regra de segmentação, validação de colunas e geração de artefatos.
-- [x] Padronização de qualidade local com `ruff`, `pytest` e `Makefile`.
-- [x] Workflow de CI para validar lint, testes, pipeline e publicar relatório como artifact.
-- [x] Workflow de CD simulado para publicar saídas validadas do pipeline após `push` em `main`.
-- [x] Workflow manual com `workflow_dispatch`, `inputs`, `outputs` entre jobs e publicação condicional de artifacts.
-- [x] Workflow dedicado para demonstrar `env`, `vars`, `secrets` e `contexts` com resumo operacional.
-- [x] Workflow com `matrix`, `schedule`, condicionais e `concurrency`.
-- [x] Workflow reutilizável com `workflow_call` e workflow consumidor com repasse de `secrets`.
-- [x] Workflow acionado por `repository_dispatch` com leitura de `client_payload`.
-- [x] Pull Request Template para revisão, rastreabilidade e colaboração.
-- [x] Estrutura preparada para evidências visuais em `evidence/screenshots/`.
+- [x] Pipeline Python local.
+- [x] Testes automatizados com `pytest`.
+- [x] Lint com `ruff`.
+- [x] `Makefile` para padronizar comandos.
+- [x] CI com GitHub Actions.
+- [x] CD simulado com artifacts.
+- [x] Workflow manual com `workflow_dispatch`.
+- [x] Inputs em workflows manuais.
+- [x] Outputs entre jobs.
+- [x] Artifacts para relatórios e saídas do pipeline.
+- [x] Variáveis de ambiente (`env`).
+- [x] Repository variables (`vars`).
+- [x] Secrets.
+- [x] Contexts do GitHub Actions.
+- [x] Matrix strategy.
+- [x] Condicionais em workflows.
+- [x] Concurrency.
+- [x] Workflow reutilizável com `workflow_call`.
+- [x] Reaproveitamento de workflow com repasse de `secrets`.
+- [x] `repository_dispatch`.
+- [x] Pull Request Template.
+- [x] Evidências reais em `evidence/screenshots/`.
+- [x] Documentação complementar em `docs/`.
 
 [Voltar ao índice](#indice)
 
