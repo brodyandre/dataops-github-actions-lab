@@ -43,10 +43,10 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
@@ -70,7 +70,7 @@ jobs:
 
       - name: Store generated files for the publish job
         if: needs.prepare.outputs.quality_gate_enabled == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: generated-data-bundle
           path: |
@@ -87,11 +87,11 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download generated files from validation
         if: needs.prepare.outputs.quality_gate_enabled == 'true'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: generated-data-bundle
           path: .
@@ -113,7 +113,7 @@ jobs:
 
       - name: Publish processed data artifact
         if: steps.detect_generated_files.outputs.processed_found == 'yes'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: processed-data-${{ needs.prepare.outputs.selected_environment }}
           path: data/processed/*.csv
@@ -121,7 +121,7 @@ jobs:
 
       - name: Publish reports artifact
         if: steps.detect_generated_files.outputs.reports_found == 'yes'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reports-${{ needs.prepare.outputs.selected_environment }}
           path: reports/*.md

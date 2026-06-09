@@ -161,8 +161,18 @@ O runtime do pipeline usa apenas a biblioteca padrão do Python. As dependência
 
 ### Preparação do ambiente
 
+Fluxo recomendado para uma validação local limpa:
+
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
 make install
+```
+
+Se preferir não ativar a virtual environment, os comandos também podem ser executados informando o interpretador explicitamente:
+
+```bash
+make install PYTHON=.venv/bin/python
 ```
 
 ### Comandos disponíveis
@@ -193,6 +203,8 @@ PYTHONPATH=src python3 -m dataops_pipeline.pipeline \
 ### Fluxo local completo
 
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
 make install
 make validate
 ```
