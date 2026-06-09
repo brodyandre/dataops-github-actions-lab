@@ -1,0 +1,62 @@
+name: Repository Dispatch Demo
+
+on:
+  repository_dispatch:
+    types:
+      - external-data-refresh
+
+jobs:
+  run-external-data-refresh:
+    name: Handle external data refresh request
+    runs-on: ubuntu-latest
+    env:
+      PAYLOAD_SOURCE: ${{ github.event.client_payload.source || 'not_provided' }}
+      PAYLOAD_REQUESTED_BY: ${{ github.event.client_payload.requested_by || 'not_provided' }}
+      PAYLOAD_REASON: ${{ github.event.client_payload.reason || 'not_provided' }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install project dependencies
+        run: make install PYTHON=python
+
+      - name: Execute customer pipeline
+        run: make run PYTHON=python
+
+      - name: Validate generated outputs
+        run: |
+          test -f data/processed/customers_processed.csv
+          test -f reports/pipeline_summary.md
+
+      - name: Upload processed data artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: repository-dispatch-processed-data
+          path: data/processed/
+          if-no-files-found: error
+
+      - name: Upload reports artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: repository-dispatch-reports
+          path: reports/
+          if-no-files-found: error
+
+      - name: Write workflow summary
+        run: |
+          {
+            echo "## Repository dispatch summary"
+            echo
+            echo "- Event type: \`${{ github.event.action }}\`"
+            echo "- Source: \`$PAYLOAD_SOURCE\`"
+            echo "- Requested by: \`$PAYLOAD_REQUESTED_BY\`"
+            echo "- Reason: \`$PAYLOAD_REASON\`"
+            echo
+            echo "The customer pipeline was executed and the generated outputs were published as artifacts."
+          } >> "$GITHUB_STEP_SUMMARY"

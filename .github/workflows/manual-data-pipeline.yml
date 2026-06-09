@@ -1,0 +1,141 @@
+name: Manual Data Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment for this manual run"
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      run_quality_gate:
+        description: "Run the customer pipeline after lint and tests"
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  prepare:
+    name: Prepare manual run
+    runs-on: ubuntu-latest
+    outputs:
+      selected_environment: ${{ steps.capture-inputs.outputs.selected_environment }}
+      quality_gate_enabled: ${{ steps.capture-inputs.outputs.quality_gate_enabled }}
+
+    steps:
+      - name: Capture workflow inputs
+        id: capture-inputs
+        run: |
+          echo "selected_environment=${{ inputs.environment }}" >> "$GITHUB_OUTPUT"
+          echo "quality_gate_enabled=${{ inputs.run_quality_gate }}" >> "$GITHUB_OUTPUT"
+
+  validate:
+    name: Validate requested execution
+    runs-on: ubuntu-latest
+    needs: prepare
+    env:
+      SELECTED_ENVIRONMENT: ${{ needs.prepare.outputs.selected_environment }}
+      QUALITY_GATE_ENABLED: ${{ needs.prepare.outputs.quality_gate_enabled }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install project dependencies
+        run: make install PYTHON=python
+
+      - name: Show received job outputs
+        run: |
+          echo "Selected environment: $SELECTED_ENVIRONMENT"
+          echo "Quality gate enabled: $QUALITY_GATE_ENABLED"
+
+      - name: Run lint
+        run: make lint PYTHON=python
+
+      - name: Run tests
+        run: make test PYTHON=python
+
+      - name: Execute pipeline when quality gate is enabled
+        if: needs.prepare.outputs.quality_gate_enabled == 'true'
+        run: make run PYTHON=python
+
+      - name: Store generated files for the publish job
+        if: needs.prepare.outputs.quality_gate_enabled == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-data-bundle
+          path: |
+            data/processed/*.csv
+            reports/*.md
+          if-no-files-found: error
+
+  publish-artifacts:
+    name: Publish generated artifacts
+    runs-on: ubuntu-latest
+    needs:
+      - prepare
+      - validate
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Download generated files from validation
+        if: needs.prepare.outputs.quality_gate_enabled == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: generated-data-bundle
+          path: .
+
+      - name: Detect generated outputs
+        id: detect_generated_files
+        run: |
+          if compgen -G "data/processed/*.csv" > /dev/null; then
+            echo "processed_found=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "processed_found=no" >> "$GITHUB_OUTPUT"
+          fi
+
+          if compgen -G "reports/*.md" > /dev/null; then
+            echo "reports_found=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "reports_found=no" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish processed data artifact
+        if: steps.detect_generated_files.outputs.processed_found == 'yes'
+        uses: actions/upload-artifact@v4
+        with:
+          name: processed-data-${{ needs.prepare.outputs.selected_environment }}
+          path: data/processed/*.csv
+          if-no-files-found: error
+
+      - name: Publish reports artifact
+        if: steps.detect_generated_files.outputs.reports_found == 'yes'
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-${{ needs.prepare.outputs.selected_environment }}
+          path: reports/*.md
+          if-no-files-found: error
+
+      - name: Write workflow summary
+        run: |
+          {
+            echo "## Manual data pipeline summary"
+            echo
+            echo "- Environment: \`${{ needs.prepare.outputs.selected_environment }}\`"
+            echo "- Quality gate enabled: \`${{ needs.prepare.outputs.quality_gate_enabled }}\`"
+            echo "- Processed data artifact published: \`${{ steps.detect_generated_files.outputs.processed_found }}\`"
+            echo "- Reports artifact published: \`${{ steps.detect_generated_files.outputs.reports_found }}\`"
+            echo
+            echo "This workflow demonstrates workflow_dispatch inputs, outputs shared between jobs and artifact publication for a data pipeline run."
+          } >> "$GITHUB_STEP_SUMMARY"

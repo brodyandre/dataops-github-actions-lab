@@ -1,0 +1,7 @@
+customer_id,customer_name,email,city,country,total_spent
+C001,Ana Silva,ana.silva@example.com,Sao Paulo,Brazil,1250.75
+C002,Bruno Costa,bruno.costa@example.com,Rio de Janeiro,Brazil,420.00
+C003,Carla Mendes,carla.mendes@example.com,Belo Horizonte,Brazil,180.50
+C004,Diego Pereira,diego.pereira@example.com,Curitiba,Brazil,980.00
+C005,Elisa Rocha,elisa.rocha@example.com,Recife,Brazil,1540.20
+C006,Felipe Martins,felipe.martins@example.com,Porto Alegre,Brazil,260.00

@@ -1,0 +1,51 @@
+name: Manual Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      input_file:
+        description: "Arquivo localizado em data/raw"
+        required: false
+        default: customers.csv
+        type: string
+
+jobs:
+  run-pipeline:
+    name: Run manual customer pipeline
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install project dependencies
+        run: make install PYTHON=python
+
+      - name: Execute customer pipeline
+        run: make run PYTHON=python INPUT_FILE=data/raw/${{ inputs.input_file }}
+
+      - name: Upload processed data and report
+        uses: actions/upload-artifact@v4
+        with:
+          name: customers-pipeline-results
+          path: |
+            data/processed/customers_processed.csv
+            reports/pipeline_summary.md
+          if-no-files-found: error
+
+      - name: Write workflow summary
+        run: |
+          {
+            echo "## Manual pipeline summary"
+            echo
+            echo "- Input file: \`data/raw/${{ inputs.input_file }}\`"
+            echo "- Output file: \`data/processed/customers_processed.csv\`"
+            echo "- Report file: \`reports/pipeline_summary.md\`"
+            echo
+            echo "This workflow is useful for manual execution and artifact inspection without changing the pipeline code."
+          } >> "$GITHUB_STEP_SUMMARY"

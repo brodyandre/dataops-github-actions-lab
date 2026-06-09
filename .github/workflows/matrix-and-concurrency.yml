@@ -1,0 +1,56 @@
+name: Matrix and Concurrency Demo
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 8 * * 1"
+
+concurrency:
+  group: matrix-and-concurrency-${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  validate-across-python-versions:
+    name: Validate on Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install project dependencies
+        run: make install PYTHON=python
+
+      - name: Run lint with Ruff
+        run: make lint PYTHON=python
+
+      - name: Run test suite with Pytest
+        run: make test PYTHON=python
+
+      - name: Run main branch smoke validation
+        if: github.ref_name == 'main'
+        run: make run PYTHON=python
+
+      - name: Write workflow summary
+        run: |
+          {
+            echo "## Matrix and concurrency summary"
+            echo
+            echo "- Event: \`${{ github.event_name }}\`"
+            echo "- Branch: \`${{ github.head_ref || github.ref_name }}\`"
+            echo "- Python version: \`${{ matrix.python-version }}\`"
+            echo "- Main-only validation executed: \`${{ github.ref_name == 'main' }}\`"
+            echo
+            echo "This workflow validates the project across multiple Python versions and cancels outdated runs on the same branch."
+          } >> "$GITHUB_STEP_SUMMARY"

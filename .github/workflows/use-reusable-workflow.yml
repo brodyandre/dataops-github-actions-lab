@@ -1,0 +1,14 @@
+name: Use Reusable Workflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-reusable-quality:
+    name: Call reusable Python quality workflow
+    uses: ./.github/workflows/reusable-python-quality.yml
+    with:
+      python-version: "3.11"
+      run-pipeline: true
+    secrets:
+      FAKE_API_TOKEN: ${{ secrets.FAKE_API_TOKEN }}
