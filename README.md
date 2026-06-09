@@ -27,7 +27,7 @@ O foco está menos em volume de tecnologia e mais em boas decisões de base: val
 - [Como este projeto se conecta com Engenharia de Dados](#como-este-projeto-se-conecta-com-engenharia-de-dados)
 - [Revisão e colaboração](#revisao-e-colaboracao)
 - [Troubleshooting](#troubleshooting)
-- [Roadmap](#roadmap)
+- [Próximos passos](#proximos-passos)
 - [Documentação complementar](#documentacao-complementar)
 - [GitHub](#github)
 
@@ -399,17 +399,20 @@ Isso torna o histórico do repositório mais útil para quem revisa, para quem r
 
 [Voltar ao índice](#indice)
 
-<a id="roadmap"></a>
-## Roadmap
+<a id="proximos-passos"></a>
+## Próximos passos
 
-O roadmap abaixo mantém o espírito do laboratório: evoluir por etapas curtas, sem perder legibilidade e sem adicionar complexidade só para parecer maior.
+As evoluções abaixo fazem sentido para a próxima fase do laboratório, mas não fazem parte do escopo implementado hoje. A ideia é expandir o projeto sem perder o foco em DataOps, CI/CD e Engenharia de Dados.
 
-- adicionar regras de qualidade de dados além da validação de colunas
-- gerar relatórios mais analíticos em `reports/`
-- publicar artifacts em um destino externo, como S3, GCS ou Azure Blob
-- conectar o pipeline a um orquestrador, como Airflow
-- expandir o uso de reusable workflows para um cenário com múltiplos repositórios
-- adicionar um exemplo de execução agendada com persistência de evidências
+- publicar o relatório do pipeline em GitHub Pages para transformar a saída da execução em uma evidência navegável
+- adicionar validações de qualidade de dados mais robustas, como checagem de nulos, duplicidade e faixas esperadas
+- integrar o projeto com Docker para padronizar o ambiente local e facilitar demonstrações
+- simular um deploy em ambiente gratuito ou local, mantendo a proposta de CD controlado sem depender de cloud paga
+- adicionar cobertura de testes para acompanhar melhor a evolução do pipeline
+- configurar branch protection rules no GitHub para reforçar revisão e validação antes de merge
+- complementar os badges do repositório com status mais próximos da rotina de CI/CD
+- integrar notificações de falha para dar mais visibilidade a execuções quebradas
+- incluir um exemplo de Pull Request preenchido com o template do projeto
 
 [Voltar ao índice](#indice)
 
